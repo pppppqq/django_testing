@@ -52,7 +52,7 @@ def comment(news, author):
 
 @pytest.fixture()
 def create_news():
-    """Фикстура для создания тестовых новостей."""
+    """Создает много записей в таблице новостей."""
     today = datetime.today()
     News.objects.bulk_create(
         News(
@@ -66,6 +66,7 @@ def create_news():
 
 @pytest.fixture
 def create_comments(news, author):
+    """Создает много комментариев под одной новостью."""
     now = timezone.now()
 
     for index in range(10):
@@ -106,5 +107,25 @@ def delete_url(comment):
 
 
 @pytest.fixture
+def home_url():
+    return reverse('news:home')
+
+
+@pytest.fixture
 def url_to_comments(detail_url):
     return detail_url + '#comments'
+
+
+@pytest.fixture
+def login_url():
+    return reverse('users:login')
+
+
+@pytest.fixture
+def logout_url():
+    return reverse('users:logout')
+
+
+@pytest.fixture
+def signup_url():
+    return reverse('users:signup')

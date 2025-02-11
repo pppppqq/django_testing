@@ -1,28 +1,28 @@
 import pytest
 from django.conf import settings
-from django.urls import reverse
 
 from news.forms import CommentForm
 
-HOME_URL = reverse('news:home')
-
 
 @pytest.mark.django_db
-def test_news_count(client, create_news):
+def test_news_count(client, home_url, create_news):
     """Количество новостей на главной странице соответствует настройкам."""
-    response = client.get(HOME_URL)
+    response = client.get(home_url)
+    assert 'object_list' in response.context
     object_list = response.context['object_list']
+
     news_count = object_list.count()
     assert news_count == settings.NEWS_COUNT_ON_HOME_PAGE
 
 
 @pytest.mark.django_db
-def test_news_order(client, create_news):
+def test_news_order(client, home_url, create_news):
     """
     Новости отсортированы от самой свежей к самой старой.
     Свежие новости в начале списка.
     """
-    response = client.get(HOME_URL)
+    response = client.get(home_url)
+    assert 'object_list' in response.context
     object_list = response.context['object_list']
 
     all_dates = [news.date for news in object_list]
@@ -38,8 +38,8 @@ def test_comments_order(client, detail_url, create_comments):
     """
     response = client.get(detail_url)
     assert 'news' in response.context
-
     news = response.context['news']
+
     all_comments = news.comment_set.all()
     all_timestamps = [comment.created for comment in all_comments]
     sorted_timestamps = sorted(all_timestamps)

@@ -20,20 +20,23 @@ def test_user_can_create_comment(
     """Залогиненный пользователь может оставить комментарий."""
     response = author_client.post(detail_url, data=form_data)
     assertRedirects(response, url_to_comments)
-
     assert Comment.objects.count() == 1
+
     comment = Comment.objects.get()
     assert comment.text == form_data['text']
     assert comment.author == author
     assert comment.news == news
 
 
-def test_user_cant_use_bad_words(author_client, detail_url):
+@pytest.mark.parametrize(
+    'bad_word', BAD_WORDS
+)
+def test_user_cant_use_bad_words(bad_word, author_client, detail_url):
     """
     Пользователь не может использовать запрещённые слова
     при комментировании.
     """
-    bad_words_data = {'text': f'Какой-то текст, {BAD_WORDS[0]}, еще текст'}
+    bad_words_data = {'text': f'Какой-то текст, {bad_word}, еще текст'}
     response = author_client.post(detail_url, data=bad_words_data)
     assertFormError(
         response,
@@ -48,10 +51,15 @@ def test_author_cat_edit_comment(
     author_client, edit_url, url_to_comments, form_data, comment
 ):
     """Редактирование комментария доступно для автора."""
+    comment_from_db = Comment.objects.get(id=comment.id)
     response = author_client.post(edit_url, data=form_data)
     assertRedirects(response, url_to_comments)
+
     comment.refresh_from_db()
+    assert comment.news == comment_from_db.news
+    assert comment.author == comment_from_db.author
     assert comment.text == form_data['text']
+    assert comment.created == comment_from_db.created
 
 
 def test_user_cant_edit_comment_of_another_user(
@@ -61,8 +69,11 @@ def test_user_cant_edit_comment_of_another_user(
     response = not_author_client.post(edit_url, data=form_data)
     assert response.status_code == HTTPStatus.NOT_FOUND
 
-    comment.refresh_from_db()
-    assert comment.text != form_data['text']
+    comment_from_db = Comment.objects.get(id=comment.id)
+    assert comment.news == comment_from_db.news
+    assert comment.author == comment_from_db.author
+    assert comment.text == comment_from_db.text
+    assert comment.created == comment_from_db.created
 
 
 def test_author_can_delete_comment(
