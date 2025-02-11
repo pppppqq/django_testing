@@ -64,7 +64,7 @@ class TestRoutes(TestCase):
         доступны только автору заметки. Если на эти страницы попытается
         зайти другой пользователь — вернётся ошибка 404.
         """
-        user_statuses = (
+        client_statuses = (
             (self.author_client, HTTPStatus.OK),
             (self.not_author_client, HTTPStatus.NOT_FOUND)
         )
@@ -74,10 +74,10 @@ class TestRoutes(TestCase):
             self.note_delete_url,
         )
 
-        for user, status in user_statuses:
+        for client, status in client_statuses:
             for url in urls:
                 with self.subTest():
-                    response = user.get(url)
+                    response = client.get(url)
                     self.assertEqual(response.status_code, status)
 
     def test_pages_availability_auth_user(self):

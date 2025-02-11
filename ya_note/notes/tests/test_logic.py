@@ -91,8 +91,7 @@ class TestNoteCreation(TestCase):
 
     def test_author_can_edit_note(self):
         """Автор может редактировать заметку."""
-        url = reverse('notes:edit', args=(self.note.slug,))
-        response = self.author_client.post(url, self.form_data)
+        response = self.author_client.post(self.edit_note_url, self.form_data)
         self.assertRedirects(response, self.success_url)
 
         self.note.refresh_from_db()
@@ -106,7 +105,7 @@ class TestNoteCreation(TestCase):
         Зарегистрированный пользователь не может редактировать
         чужую заметку.
         """
-        note_before_request = self.note
+        note_before_request = Note.objects.get(id=self.note.id)
         response = self.not_author_client.post(
             self.edit_note_url, self.form_data
         )

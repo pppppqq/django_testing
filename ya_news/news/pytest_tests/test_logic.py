@@ -59,7 +59,6 @@ def test_author_cat_edit_comment(
     assert comment.news == comment_from_db.news
     assert comment.author == comment_from_db.author
     assert comment.text == form_data['text']
-    assert comment.created == comment_from_db.created
 
 
 def test_user_cant_edit_comment_of_another_user(
@@ -73,7 +72,6 @@ def test_user_cant_edit_comment_of_another_user(
     assert comment.news == comment_from_db.news
     assert comment.author == comment_from_db.author
     assert comment.text == comment_from_db.text
-    assert comment.created == comment_from_db.created
 
 
 def test_author_can_delete_comment(

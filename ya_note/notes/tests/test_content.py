@@ -35,13 +35,13 @@ class TestNotePage(TestCase):
         В список заметок одного пользователя не попадают
         заметки другого пользователя.
         """
-        users_access = (
+        client_access = (
             (self.author_client, True),
             (self.not_author_client, False)
         )
-        for user, access in users_access:
-            with self.subTest(name=user):
-                response = user.get(self.notes_list_url)
+        for client, access in client_access:
+            with self.subTest(name=client):
+                response = client.get(self.notes_list_url)
                 self.assertIn('object_list', response.context)
                 object_list = response.context['object_list']
                 self.assertEqual(self.note in object_list, access)
