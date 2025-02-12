@@ -105,16 +105,17 @@ class TestNoteCreation(TestCase):
         Зарегистрированный пользователь не может редактировать
         чужую заметку.
         """
-        note_before_request = Note.objects.get(id=self.note.id)
         response = self.not_author_client.post(
             self.edit_note_url, self.form_data
         )
         self.assertEqual(response.status_code, HTTPStatus.NOT_FOUND)
 
-        self.assertEqual(note_before_request.title, self.note.title)
-        self.assertEqual(note_before_request.text, self.note.text)
-        self.assertEqual(note_before_request.slug, self.note.slug)
-        self.assertEqual(note_before_request.author, self.note.author)
+        note_after_request = Note.objects.get(id=self.note.id)
+
+        self.assertEqual(note_after_request.title, self.note.title)
+        self.assertEqual(note_after_request.text, self.note.text)
+        self.assertEqual(note_after_request.slug, self.note.slug)
+        self.assertEqual(note_after_request.author, self.note.author)
 
     def test_author_can_delete_note(self):
         """Автор может удалить свою заметку."""
